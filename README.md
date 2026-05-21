@@ -24,22 +24,22 @@ Il diagramma seguente mostra il flusso della connettività, dal modem 5G esterno
 ```mermaid
 graph TD
     %% Internet & Provider
-    Internet((Internet)) <-->|5G-NSA Alpsim - Rete WindTre| Zyxel_NR7302[Zyxel NR7302 <br/> Outdoor 5G - Cell-Locked <br/> (BTS a 10km in linea d'aria)]
+    Internet((Internet)) <-->|5G-NSA Alpsim - Rete WindTre| Zyxel_NR7302["Zyxel NR7302 <br/> Outdoor 5G - Cell-Locked <br/> (BTS a 10km in linea d'aria)"]
     
     %% Main Router
-    Zyxel_NR7302 <-->|WAN 2.5 GbE PoE| Cudy_WR3000H[Cudy WR3000H <br/> Main Router - OpenWrt]
+    Zyxel_NR7302 <-->|WAN 2.5 GbE PoE| Cudy_WR3000H["Cudy WR3000H <br/> Main Router - OpenWrt"]
     
     %% Services on Main Router
     subgraph Cudy_Services [Servizi Router Principale]
-        DoH[DNS-over-HTTPS <br/> Stubby / HTTPS-dns-proxy]
-        Firewall[Regole di Routing & Firewall <br/> per singolo Host]
-        DHCP[Server DHCP & VLAN]
+        DoH["DNS-over-HTTPS <br/> Stubby / HTTPS-dns-proxy"]
+        Firewall["Regole di Routing & Firewall <br/> per singolo Host"]
+        DHCP["Server DHCP & VLAN"]
     end
     Cudy_WR3000H -.- Cudy_Services
 
     %% Internal LAN Mesh
-    Cudy_WR3000H <-->|LAN Gigabit Ethernet| TP_Link_C6_P1[TP-Link Archer C6 - Piano 1 <br/> OpenWrt AP]
-    Cudy_WR3000H <-->|LAN Gigabit Ethernet| TP_Link_C6_P2[TP-Link Archer C6 - Piano 2 <br/> OpenWrt AP]
+    Cudy_WR3000H <-->|LAN Gigabit Ethernet| TP_Link_C6_P1["TP-Link Archer C6 - Piano 1 <br/> OpenWrt AP"]
+    Cudy_WR3000H <-->|LAN Gigabit Ethernet| TP_Link_C6_P2["TP-Link Archer C6 - Piano 2 <br/> OpenWrt AP"]
     
     subgraph Wi_Fi_Roaming [Wireless Roaming Mesh - usteer]
         TP_Link_C6_P1 <-.->|802.11k/v/r Roaming| TP_Link_C6_P2
@@ -47,14 +47,14 @@ graph TD
     end
 
     %% P2P Links
-    Cudy_WR3000H <-->|Ponte Radio Outdoor WDS| P2P_Master[MikroTik SXTsq 5 ac - Master <br/> WDS AP - OpenWrt]
-    P2P_Master <-.->|Wireless Link L2 Transparent| P2P_Slave[MikroTik SXTsq 5 ac - Slave <br/> WDS Client - OpenWrt]
+    Cudy_WR3000H <-->|Ponte Radio Outdoor WDS| P2P_Master["MikroTik SXTsq 5 ac - Master <br/> WDS AP - OpenWrt"]
+    P2P_Master <-.->|Wireless Link L2 Transparent| P2P_Slave["MikroTik SXTsq 5 ac - Slave <br/> WDS Client - OpenWrt"]
     
     %% External Areas
     subgraph Dependance_Pool [Piscina & Dependance]
-        P2P_Slave <--> Switch_Esterno[Switch Esterno]
-        Switch_Esterno <--> AP_Esterno[Access Point Esterno]
-        Switch_Esterno <--> TapoCam[Smart Cam TP-Link Tapo & IoT]
+        P2P_Slave <--> Switch_Esterno["Switch Esterno"]
+        Switch_Esterno <--> AP_Esterno["Access Point Esterno"]
+        Switch_Esterno <--> TapoCam["Smart Cam TP-Link Tapo & IoT"]
     end
 
 
