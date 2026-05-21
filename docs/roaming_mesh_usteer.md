@@ -3,9 +3,9 @@
 Questo documento descrive la progettazione e l'ottimizzazione del sistema Wi-Fi multi-piano realizzato nella mia abitazione. L'obiettivo era ottenere una copertura totale su tre piani (divisi da solette in cemento armato che attenuano fortemente il segnale) e garantire che dispositivi in movimento (smartphone, portatili) passassero da un piano all'altro senza disconnessioni o interruzioni di chiamate VoIP o streaming.
 
 L'infrastruttura utilizza tre nodi fisici con firmware **OpenWrt**:
-1. **Cudy WR3000H** (Main Router e AP al Piano Terra)
+1. **Cudy WR3000H** (Main Router e AP al Secondo Piano, posizionato appena sotto lo Zyxel sul tetto)
 2. **TP-Link Archer C6 v2/v3** (Access Point al Primo Piano, connesso via cavo Ethernet)
-3. **TP-Link Archer C6 v2/v3** (Access Point al Secondo Piano, connesso via cavo Ethernet)
+3. **TP-Link Archer C6 v2/v3** (Access Point al Piano Terra, connesso via cavo Ethernet)
 
 ---
 
