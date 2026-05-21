@@ -1,0 +1,58 @@
+#!/bin/sh
+
+# ==============================================================================
+# Script: /usr/lib/ModemManager/connection.d/10-report-down-and-reconnect
+# Autore/Proposta originale: Lynx (OpenWrt Forum)
+# ==============================================================================
+# Questo script viene richiamato automaticamente da ModemManager ad ogni cambio 
+# di stato della connessione LTE/5G.
+# Segnala a netifd (OpenWrt network daemon) che l'interfaccia fisica sottostante 
+# è disconnessa e forza una riconnessione immediata se l'interfaccia era attiva.
+#
+# Nota: Ad oggi, una variante di questo script è stata ufficialmente introdotta
+# nel branch master di ModemManager per la gestione nativa delle disconnessioni
+# tramite gli event hooks di connessione.
+# ==============================================================================
+
+# Richiede il nome del programma e almeno 4 argomenti passati da ModemManager
+[ $# -lt 4 ] && exit 1
+
+MODEM_PATH="$1"
+BEARER_PATH="$2"
+INTERFACE="$3"
+STATE="$4"
+
+# Esegue lo script solo in caso di reale disconnessione
+[ "${STATE}" = "disconnected" ] || exit 0
+
+# Importa le librerie e funzioni standard di OpenWrt / netifd / ModemManager
+. /usr/share/ModemManager/modemmanager.common
+. /lib/netifd/netifd-proto.sh
+INCLUDE_ONLY=1 . /lib/netifd/proto/modemmanager.sh
+
+# Recupera lo stato del modem da mmcli in formato key-value
+MODEM_STATUS=$(mmcli --modem="${MODEM_PATH}" --output-keyvalue)
+[ -n "${MODEM_STATUS}" ] || exit 1
+
+# Estrae il device name generico (es. sysfs path)
+MODEM_DEVICE=$(modemmanager_get_field "${MODEM_STATUS}" "modem.generic.device")
+[ -n "${MODEM_DEVICE}" ] || exit 2
+
+# Recupera la configurazione dell'interfaccia logica associata in OpenWrt (es. 'wan')
+CFG=$(mm_get_modem_config "${MODEM_DEVICE}")
+[ -n "${CFG}" ] || exit 3
+
+# Controlla se l'interfaccia logica era nello stato 'up' prima della caduta
+IFUP=$(ifstatus ${CFG} | jsonfilter -e '@.up')
+
+# Scrive l'evento nel log di sistema (logread)
+logger -t "modemmanager" "Interfaccia ${CFG} (dispositivo di rete ${INTERFACE}) cambiata in stato: ${STATE}"
+
+# Comunica a netifd la disconnessione del protocollo per ripulire lo stato dell'interfaccia
+proto_init_update $INTERFACE 0
+proto_send_update $CFG
+
+# Se l'interfaccia logica era attiva, forza il riavvio (ifup) immediato
+[ "${IFUP}" = "true" ] && ifup ${CFG}
+
+exit 0
