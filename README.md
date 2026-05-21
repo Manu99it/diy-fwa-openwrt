@@ -26,25 +26,28 @@ graph TD
     %% Internet & Provider
     Internet((Internet)) <-->|5G-NSA Alpsim - Rete WindTre| Zyxel_NR7302["Zyxel NR7302 <br/> Outdoor 5G (Tetto) <br/> Cell-Locked (BTS a 10km)"]
     
-    %% Main Router & Services
-    subgraph Cudy_Services ["Router Principale e Servizi (Secondo Piano - Mansarda)"]
-        Cudy_WR3000H["Cudy WR3000H <br/> Main Router - OpenWrt <br/> (Appena sotto lo Zyxel)"]
-        DoH["DNS-over-HTTPS <br/> Stubby / HTTPS-dns-proxy"]
-        Firewall["Regole di Routing & Firewall <br/> per singolo Host"]
+    Zyxel_NR7302 <-->|WAN 2.5 GbE PoE| Cudy_WR3000H
+
+    %% Main Building (Single Stabile)
+    subgraph Abitazione ["Abitazione Principale"]
+        Cudy_WR3000H["Cudy WR3000H <br/> Main Router - OpenWrt <br/> (Mansarda / Secondo Piano)"]
+        DoH["DNS-over-HTTPS <br/> (Stubby / Proxy)"]
+        Firewall["Firewall & Policy Routing"]
         DHCP["Server DHCP & VLAN"]
         
+        TP_Link_C6_P1["TP-Link Archer C6 - Primo Piano <br/> OpenWrt AP"]
+        TP_Link_C6_PT["TP-Link Archer C6 - Piano Terra <br/> OpenWrt AP"]
+
+        %% Services connection
         Cudy_WR3000H --> DoH
         Cudy_WR3000H --> Firewall
         Cudy_WR3000H --> DHCP
-    end
 
-    Zyxel_NR7302 <-->|WAN 2.5 GbE PoE| Cudy_WR3000H
+        %% Wired LAN connections
+        Cudy_WR3000H <-->|LAN Gigabit Ethernet| TP_Link_C6_P1
+        Cudy_WR3000H <-->|LAN Gigabit Ethernet| TP_Link_C6_PT
 
-    %% Internal LAN Mesh
-    Cudy_WR3000H <-->|LAN Gigabit Ethernet| TP_Link_C6_P1["TP-Link Archer C6 - Piano 1 <br/> OpenWrt AP"]
-    Cudy_WR3000H <-->|LAN Gigabit Ethernet| TP_Link_C6_PT["TP-Link Archer C6 - Piano Terra <br/> OpenWrt AP"]
-    
-    subgraph Wi_Fi_Roaming ["Wireless Roaming Mesh - usteer"]
+        %% Wireless Roaming Mesh (usteer)
         TP_Link_C6_P1 <-.->|802.11k/v/r Roaming| TP_Link_C6_PT
         TP_Link_C6_P1 <-.->|802.11k/v/r Roaming| Cudy_WR3000H
         TP_Link_C6_PT <-.->|802.11k/v/r Roaming| Cudy_WR3000H
